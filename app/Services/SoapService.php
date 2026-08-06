@@ -1,3 +1,7 @@
+<?php
+
+namespace App\Services;
+
 class SoapService
 {
     protected SoapClient $client;
