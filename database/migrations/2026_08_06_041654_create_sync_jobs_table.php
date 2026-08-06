@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('database');
             $table->longText('sql');
             $table->integer('interval');
+            $table->integer('timeout')->default(300);
+            $table->integer('retry')->default(3);
             $table->timestamp('last_execute')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();

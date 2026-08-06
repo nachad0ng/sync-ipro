@@ -1,7 +1,21 @@
 <?php
 
 return [
+
     'wsdl' => env('SOAP_WSDL'),
-    'username' => env('SOAP_USERNAME'),
-    'password' => env('SOAP_PASSWORD'),
+
+    'user' => env('SOAP_USERNAME'),
+
+    'pass' => env('SOAP_PASSWORD'),
+
+    'trace' => env('SOAP_TRACE', true),
+
+    'dataset' => [
+        'schema' => [
+            'setting_id'   => 'channel_id',
+            'setting_name' => 'TRP',
+        ],
+        'any' => '',
+    ],
+
 ];

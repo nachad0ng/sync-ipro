@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sync_job_id');
             $table->text('sql');
-            $table->boolean('success');
+            $table->string('status');
             $table->longText('message')->nullable();
-            $table->integer('duration');
+            $table->integer('duration')->default(0);
             $table->timestamps();
         });
     }

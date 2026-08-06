@@ -7,4 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class SyncJob extends Model
 {
     //
+    protected $fillable = [
+        'name',
+        'database',
+        'sql',
+        'interval',
+        'timeout',
+        'retry',
+        'active',
+        'last_execute'
+    ];
+    
+
+    public function logs()
+    {
+        return $this->hasMany(SyncLog::class);
+    }
 }
