@@ -9,6 +9,7 @@ class SyncLog extends Model
     //
     protected $fillable=[
         'sync_job_id',
+        'sql',
         'status',
         'duration',
         'message'

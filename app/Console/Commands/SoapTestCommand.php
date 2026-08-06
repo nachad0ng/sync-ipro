@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Contracts\SoapClientInterface;
-use SoapClient;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
