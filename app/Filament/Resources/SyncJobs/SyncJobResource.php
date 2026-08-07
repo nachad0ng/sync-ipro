@@ -5,13 +5,15 @@ namespace App\Filament\Resources\SyncJobs;
 use App\Filament\Resources\SyncJobs\Pages\CreateSyncJob;
 use App\Filament\Resources\SyncJobs\Pages\EditSyncJob;
 use App\Filament\Resources\SyncJobs\Pages\ListSyncJobs;
+use App\Jobs\ExecuteSyncJob;
 use App\Models\SyncJob;
 use BackedEnum;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
+use Filament\Actions\Action;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -20,7 +22,7 @@ class SyncJobResource extends Resource
 {
     protected static ?string $model = SyncJob::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Schema $schema): Schema
     {
@@ -72,13 +74,52 @@ class SyncJobResource extends Resource
                 TextColumn::make('interval')
                     ->suffix(' mnt'),
 
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state):string=>match($state){
+                        'idle'=>'success',
+                        'queued'=>'warning',
+                        'running'=>'info',
+                        'failed'=>'danger',
+                        default=>'gray'
+                    }),
+
                 TextColumn::make('last_execute')
                     ->since(),
 
                 TextColumn::make('updated_at')
                     ->since(),
             ])
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc')
+            ->recordActions([
+                // Penulisan Action menggunakan import yang benar dan type-hint Model
+                Action::make('run')
+                    ->label('Run')
+                    ->icon('heroicon-o-play')
+                    ->color(fn (SyncJob $record): string => static::isBusy($record) ? 'gray' : 'success')
+                    ->disabled(fn (SyncJob $record): bool => static::isBusy($record))
+                    ->requiresConfirmation()
+                    ->modalHeading('Jalankan Sync Job')
+                    ->modalDescription('Apakah Anda yakin ingin menjalankan job ini sekarang?')
+                    ->action(function (SyncJob $record): void {
+                        
+                        // Eksekusi Job
+                        ExecuteSyncJob::dispatch($record->id);
+                        
+                        // Update Status
+                        $record->update([
+                            'status' => 'queued'
+                        ]);
+                        
+                        // Kirim notifikasi sukses ke User
+                        Notification::make()
+                            ->title('Job masuk antrean')
+                            ->body("Sync Job '{$record->name}' berhasil dijalankan.")
+                            ->success()
+                            ->send();
+                    })
+
+            ]);
     }
 
     public static function getRelations(): array
@@ -95,5 +136,10 @@ class SyncJobResource extends Resource
             'create' => CreateSyncJob::route('/create'),
             'edit' => EditSyncJob::route('/{record}/edit'),
         ];
+    }
+
+    protected static function isBusy(SyncJob $record): bool
+    {
+        return in_array($record->status, ['queued', 'running']);
     }
 }

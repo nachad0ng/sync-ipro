@@ -19,9 +19,12 @@ return new class extends Migration
             $table->integer('interval');
             $table->integer('timeout')->default(300);
             $table->integer('retry')->default(3);
-            $table->timestamp('last_execute')->nullable();
             $table->boolean('active')->default(true);
             $table->string('status')->default('idle');
+            $table->timestamp('last_duration')->nullable();
+            $table->timestamp('last_status')->nullable();
+            $table->timestamp('last_message')->nullable();
+            $table->timestamp('last_execute')->nullable();
             $table->timestamps();
         });
     }

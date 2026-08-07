@@ -13,13 +13,20 @@ class SyncJob extends Model
         'sql',
         'interval',
         'timeout',
+        'status',
         'retry',
         'active',
-        'last_execute'
+        'last_execute',
+        'last_status',
+        'last_message',
+        'last_duration',
     ];
 
     protected $casts = [
+        'last_status' => 'datetime',
         'last_execute' => 'datetime',
+        'last_message' => 'datetime',
+        'last_duration' => 'datetime',
     ];
     
 
