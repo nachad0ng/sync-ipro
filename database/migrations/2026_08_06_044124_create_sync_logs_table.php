@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('sync_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sync_job_id');
+            $table->integer('step_no')->nullable();
+            $table->string('step_name')->nullable();
             $table->text('sql');
             $table->string('status');
             $table->longText('message')->nullable();

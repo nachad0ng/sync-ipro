@@ -2,10 +2,10 @@
 
 namespace App\Actions;
 
-use App\Services\SyncJobRuntimeService;
 use App\Contracts\SoapClientInterface;
 use App\Models\SyncJob;
 use App\Models\SyncLog;
+use App\Services\SyncJobRuntimeService;
 
 class ExecuteSyncJobAction
 {
@@ -14,68 +14,99 @@ class ExecuteSyncJobAction
         protected SyncJobRuntimeService $runtime,
     ) {}
 
-    public function execute(SyncJob $job): array
+    public function execute(SyncJob $job): void
     {
-        
         $this->runtime->markRunning($job);
-        
-        $start = microtime(true);
 
-        try {
+        $steps = $job->steps()
+            ->where('active', true)
+            ->orderBy('step_no')
+            ->get();
 
-            $rows = $this->soap->execute(
-                $job->database,
-                $job->sql
-            );
+        $startJob = microtime(true);
 
-            $duration = round(
-                (microtime(true) - $start) * 1000
-            );
+        foreach ($steps as $step) {
 
-            $message = 'Rows : ' . (
-                is_countable($rows)
-                    ? count($rows)
-                    : 0
-            );
+            $startStep = microtime(true);
 
-            SyncLog::create([
-                'sync_job_id' => $job->id,
-                'sql' => $job->sql,
-                'status' => 'success',
-                'duration' => $duration,
-                'message' => $message
-            ]);
+            try {
 
-            $this->runtime->markSuccess(
-                $job,
-                $duration,
-                $message
-            );
+                $rows = $this->soap->execute(
+                    $job->database,
+                    $step->sql
+                );
 
-            return $rows;
+                $duration = round(
+                    (microtime(true) - $startStep) * 1000
+                );
 
-        } catch (\Throwable $e) {
+                $message = 'Rows : ' . (
+                    is_countable($rows)
+                        ? count($rows)
+                        : 0
+                );
 
-            $duration = round(
-                (microtime(true) - $start) * 1000
-            );
+                SyncLog::create([
 
-            SyncLog::create([
-                'sync_job_id' => $job->id,
-                'sql' => $job->sql,
-                'status' => 'failed',
-                'duration' => $duration,
-                'message' => $e->getMessage(),
-            ]);
+                    'sync_job_id' => $job->id,
 
-            $this->runtime->markFailed(
-                $job,
-                $duration,
-                $e->getMessage()
-            );
+                    'step_no' => $step->step_no,
 
-            throw $e;
+                    'step_name' => $step->name,
+
+                    'sql' => $step->sql,
+
+                    'status' => 'success',
+
+                    'duration' => $duration,
+
+                    'message' => $message,
+
+                ]);
+
+            } catch (\Throwable $e) {
+
+                $duration = round(
+                    (microtime(true) - $startStep) * 1000
+                );
+
+                SyncLog::create([
+
+                    'sync_job_id' => $job->id,
+
+                    'step_no' => $step->step_no,
+
+                    'step_name' => $step->name,
+
+                    'sql' => $step->sql,
+
+                    'status' => 'failed',
+
+                    'duration' => $duration,
+
+                    'message' => $e->getMessage(),
+
+                ]);
+
+                $this->runtime->markFailed(
+                    $job,
+                    round((microtime(true) - $startJob) * 1000),
+                    $e->getMessage()
+                );
+
+                throw $e;
+            }
+
         }
 
+        $this->runtime->markSuccess(
+
+            $job,
+
+            round((microtime(true) - $startJob) * 1000),
+
+            'Completed'
+
+        );
     }
 }

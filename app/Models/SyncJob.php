@@ -31,4 +31,9 @@ class SyncJob extends Model
     {
         return $this->hasMany(SyncLog::class);
     }
+
+    public function steps()
+    {
+        return $this->hasMany(SyncJobStep::class)->orderBy('step_no');
+    }
 }
