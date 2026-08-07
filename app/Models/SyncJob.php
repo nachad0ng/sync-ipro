@@ -17,6 +17,10 @@ class SyncJob extends Model
         'active',
         'last_execute'
     ];
+
+    protected $casts = [
+        'last_execute' => 'datetime',
+    ];
     
 
     public function logs()

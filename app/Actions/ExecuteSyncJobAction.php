@@ -15,6 +15,11 @@ class ExecuteSyncJobAction
 
     public function execute(SyncJob $job): array
     {
+        
+        $job->update([
+            'status' => 'running',
+        ]);
+        
         $start = microtime(true);
 
         try {
@@ -29,23 +34,20 @@ class ExecuteSyncJobAction
             );
 
             SyncLog::create([
-
                 'sync_job_id' => $job->id,
-
                 'sql' => $job->sql,
-
                 'status' => 'success',
-
                 'duration' => $duration,
-
-                'message' => 'Rows : '.count($rows),
-
+                'message' => 'Rows : ' . (
+                    is_countable($rows)
+                        ? count($rows)
+                        : 0
+                )
             ]);
 
             $job->update([
-
+                'status' => 'idle',
                 'last_execute' => now(),
-
             ]);
 
             return $rows;
@@ -57,17 +59,15 @@ class ExecuteSyncJobAction
             );
 
             SyncLog::create([
-
                 'sync_job_id' => $job->id,
-
                 'sql' => $job->sql,
-
                 'status' => 'failed',
-
                 'duration' => $duration,
-
                 'message' => $e->getMessage(),
+            ]);
 
+            $job->update([
+                'status' => 'failed'
             ]);
 
             throw $e;

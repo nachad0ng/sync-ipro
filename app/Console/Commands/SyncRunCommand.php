@@ -5,13 +5,13 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\SyncJob;
 use App\Actions\ExecuteSyncJobAction;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 
+#[Signature('sync:run {id}')]
+#[Description('Execute one Sync Job')]
 class SyncRunCommand extends Command
 {
-    protected $signature = 'sync:run {id}';
-
-    protected $description = 'Execute one Sync Job';
-
     public function __construct(
         protected ExecuteSyncJobAction $action
     ) {
