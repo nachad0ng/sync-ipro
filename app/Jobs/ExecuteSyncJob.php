@@ -78,8 +78,11 @@ class ExecuteSyncJob implements ShouldQueue
             return;
         }
 
-        $job->update([
-            'status' => 'failed'
-        ]);
+        app(\App\Services\SyncJobRuntimeService::class)
+            ->markFailed(
+                $job,
+                0,
+                $exception->getMessage()
+            );
     }
 }

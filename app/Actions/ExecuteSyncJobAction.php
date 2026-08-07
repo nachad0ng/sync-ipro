@@ -2,20 +2,22 @@
 
 namespace App\Actions;
 
+use App\Services\SyncJobRuntimeService;
 use App\Contracts\SoapClientInterface;
 use App\Models\SyncJob;
 use App\Models\SyncLog;
 
 class ExecuteSyncJobAction
 {
-    public function __construct(protected SoapClientInterface $soap) {}
+    public function __construct(
+        protected SoapClientInterface $soap,
+        protected SyncJobRuntimeService $runtime,
+    ) {}
 
     public function execute(SyncJob $job): array
     {
         
-        $job->update([
-            'status' => 'running',
-        ]);
+        $this->runtime->markRunning($job);
         
         $start = microtime(true);
 
@@ -44,13 +46,11 @@ class ExecuteSyncJobAction
                 'message' => $message
             ]);
 
-            $job->update([
-                'status' => 'idle',
-                'last_execute'   => now(),
-                'last_duration'  => $duration,
-                'last_status'    => 'success',
-                'last_message'   => $message,
-            ]);
+            $this->runtime->markSuccess(
+                $job,
+                $duration,
+                $message
+            );
 
             return $rows;
 
@@ -68,12 +68,11 @@ class ExecuteSyncJobAction
                 'message' => $e->getMessage(),
             ]);
 
-            $job->update([
-                'status' => 'failed',
-                'last_duration'  => $duration,
-                'last_status'    => 'failed',
-                'last_message'   => $e->getMessage(),
-            ]);
+            $this->runtime->markFailed(
+                $job,
+                $duration,
+                $e->getMessage()
+            );
 
             throw $e;
         }

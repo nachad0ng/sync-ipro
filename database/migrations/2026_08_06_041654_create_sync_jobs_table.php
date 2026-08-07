@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('last_status')->nullable();
             $table->text('last_message')->nullable();
             $table->timestamp('last_execute')->nullable();
+            $table->timestamp('queued_at')->nullable();
+            $table->timestamp('started_at')->nullable();
             $table->timestamps();
         });
     }

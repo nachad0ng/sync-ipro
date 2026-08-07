@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\SyncJobRuntimeService;
 use App\Jobs\ExecuteSyncJob;
 use App\Models\SyncJob;
 use Illuminate\Console\Attributes\Description;
@@ -14,7 +15,8 @@ use App\Actions\ExecuteSyncJobAction;
 class SyncSchedulerCommand extends Command
 {
     public function __construct(
-        protected ExecuteSyncJobAction $action
+        protected ExecuteSyncJobAction $action,
+        protected SyncJobRuntimeService $runtime
     )
     {
         parent::__construct();
@@ -41,9 +43,7 @@ class SyncSchedulerCommand extends Command
 
                     ExecuteSyncJob::dispatch($job->id);
 
-                    $job->update([
-                        'status' => 'queued'            
-                    ]);
+                    $this->runtime->markQueued($job);
 
                     $this->info("Queued");
 
