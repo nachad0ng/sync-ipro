@@ -31,8 +31,8 @@ class SyncLogResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('sync_job_id')
-                    ->label('Job ID'),
+                TextColumn::make('job.name')
+                    ->label('Job'),
 
                 BadgeColumn::make('status')
                     ->colors([
