@@ -68,9 +68,6 @@ class SyncJobResource extends Resource
 
                 TextColumn::make('database'),
 
-                IconColumn::make('active')
-                    ->boolean(),
-
                 TextColumn::make('interval')
                     ->suffix(' mnt'),
 
@@ -84,11 +81,27 @@ class SyncJobResource extends Resource
                         default=>'gray'
                     }),
 
+                TextColumn::make('last_status')
+                    ->badge()
+                    ->color(fn(string $state):string=>match($state){
+                        'idle'=>'success',
+                        'queued'=>'warning',
+                        'running'=>'info',
+                        'failed'=>'danger',
+                        default=>'gray'
+                    }),
+
                 TextColumn::make('last_execute')
                     ->since(),
+                    
+                // Convert last_duration from milliseconds to minutes and display with 2 decimal places
+                TextColumn::make('last_duration')
+                    ->formatStateUsing(fn($state) => $state ? number_format($state / 60000, 2) : '0.00')
+                    ->label('Last Duration')
+                    ->suffix(' mnt'),
 
-                TextColumn::make('updated_at')
-                    ->since(),
+                IconColumn::make('active')
+                    ->boolean(),
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([

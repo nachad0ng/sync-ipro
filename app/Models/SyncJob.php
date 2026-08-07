@@ -23,10 +23,7 @@ class SyncJob extends Model
     ];
 
     protected $casts = [
-        'last_status' => 'datetime',
         'last_execute' => 'datetime',
-        'last_message' => 'datetime',
-        'last_duration' => 'datetime',
     ];
     
 

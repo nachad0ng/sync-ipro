@@ -21,9 +21,9 @@ return new class extends Migration
             $table->integer('retry')->default(3);
             $table->boolean('active')->default(true);
             $table->string('status')->default('idle');
-            $table->timestamp('last_duration')->nullable();
-            $table->timestamp('last_status')->nullable();
-            $table->timestamp('last_message')->nullable();
+            $table->integer('last_duration')->default(0);
+            $table->string('last_status')->nullable();
+            $table->text('last_message')->nullable();
             $table->timestamp('last_execute')->nullable();
             $table->timestamps();
         });
