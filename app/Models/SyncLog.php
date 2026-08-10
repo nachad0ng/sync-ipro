@@ -12,7 +12,9 @@ class SyncLog extends Model
         'sql',
         'status',
         'duration',
-        'message'
+        'message',
+        'step_no',
+        'step_name'
     ];
 
 

@@ -34,6 +34,9 @@ class SyncLogResource extends Resource
                 TextColumn::make('job.name')
                     ->label('Job'),
 
+                TextColumn::make('step_name')
+                    ->label('Step'),
+
                 BadgeColumn::make('status')
                     ->colors([
                         'success' => 'success',
@@ -41,7 +44,8 @@ class SyncLogResource extends Resource
                     ]),
 
                 TextColumn::make('duration')
-                    ->suffix(' ms'),
+                    ->formatStateUsing(fn($state) => $state ? number_format($state / 60000, 2) : '0.00')
+                    ->suffix(' mnt'),
 
                 TextColumn::make('message')
                     ->limit(50),

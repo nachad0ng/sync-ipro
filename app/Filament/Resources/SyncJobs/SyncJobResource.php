@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SyncJobs;
 use App\Filament\Resources\SyncJobs\Pages\CreateSyncJob;
 use App\Filament\Resources\SyncJobs\Pages\EditSyncJob;
 use App\Filament\Resources\SyncJobs\Pages\ListSyncJobs;
+use App\Filament\Resources\SyncJobs\RelationManagers;
 use App\Jobs\ExecuteSyncJob;
 use App\Models\SyncJob;
 use BackedEnum;
@@ -138,7 +139,7 @@ class SyncJobResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\StepsRelationManager::class,
         ];
     }
 

@@ -19,6 +19,9 @@ class SoapService implements SoapClientInterface
             $config['wsdl'],
             [
                 'trace' => $config['trace'],
+                'keep_alive' => $config['keep_alive'],
+                'connection_timeout' => $config['connection_timeout'],
+                'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
             ]
         );
 
